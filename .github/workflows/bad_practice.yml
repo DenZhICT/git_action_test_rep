@@ -6,17 +6,15 @@ jobs:
   job:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
       - name: first step
-        run: |
-          echo Building the project on Ununtu latest...
-          echo Project was built!
+        run: pip install pytest
       - name: second step
-        run: |
-          echo Testing the project...
-          echo Use login: admin
-          echo Use password: admin
-          echo Project was tested!
+        run: python ./project/src/server
       - name: third step
+        run: INPUT_PASSWORD="admin" pytest ./project/test/test_server.py
+      - name: fouth step
         run: |
           echo Deploying the project...
           echo Project was deployed!
