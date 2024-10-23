@@ -1,0 +1,22 @@
+on:
+  push:
+    branches:
+      '*'
+jobs:
+  job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: first step
+        run: |
+          echo Building the project on Ununtu latest...
+          echo Project was built!
+      - name: second step
+        run: |
+          echo Testing the project...
+          echo Use login: admin
+          echo Use password: admin
+          echo Project was tested!
+      - name: third step
+        run: |
+          echo Deploying the project...
+          echo Project was deployed!
