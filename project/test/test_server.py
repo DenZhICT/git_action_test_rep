@@ -6,7 +6,7 @@ def test_env_password():
     assert os.environ['INPUT_PASSWORD'] == 'admin'
 
 def test_connection():
-    subprocess.Popen(["python", "../src/server.py"])
+    subprocess.run(["python", "../src/server.py"])
 
     client = socket.socket()
     client.connect(('localhost', 6565))
