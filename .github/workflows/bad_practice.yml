@@ -9,10 +9,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
       - name: first step
-        run: pip install pytest
+        run: python ./project/src/server.py &
       - name: second step
-        run: INPUT_PASSWORD="password" pytest ./project/test/test_server.py
+        run: pip install pytest
       - name: third step
+        run: INPUT_PASSWORD="password" pytest ./project/test/test_server.py
+      - name: fourth step
         run: |
           echo Deploying the project...
           echo Project was deployed!
