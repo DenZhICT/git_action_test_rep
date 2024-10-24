@@ -12,10 +12,27 @@ env:
   python_version: '3.12'
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
     env:
-      requirements_path: ./requirements.txt
+      server_path: ./project/src/server.py
+    steps:
+      - name: Checout repository
+        uses: actions/checkout@v4
+      - name: Setup Python ${{env.python_version}}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{env.python_version}}
+      - name: Build server
+        run: python $server_path
+  
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+        test_path: ./project/test/test_server.py
+        requirements_path: ./requirements.txt
     steps:
       - name: Checout repository
         uses: actions/checkout@v4
@@ -25,16 +42,11 @@ jobs:
           python-version: ${{env.python_version}}
       - name: Setup needed environment
         run: pip install -r $requirements_path
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-        test_path: ./labs/lab4/requirements.txt
-    steps:
       - name: Testing server
         run: |
           INPUT_PASSWORD=${{secrets.SERVER_TEST_PASSWORD}}
           pytest $test_path
+          
   deploy:
     needs: test
     runs-on: ubuntu-latest
