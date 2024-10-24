@@ -18,7 +18,7 @@ jobs:
     env:
       server_path: ./project/src/server.py
     steps:
-      - name: Checout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup Python ${{env.python_version}}
         uses: actions/setup-python@v5
@@ -34,7 +34,7 @@ jobs:
         test_path: ./project/test/test_server.py
         requirements_path: ./requirements.txt
     steps:
-      - name: Checout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup Python ${{env.python_version}}
         uses: actions/setup-python@v5
