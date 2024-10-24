@@ -13,7 +13,7 @@ jobs:
       - name: second step
         run: pip install pytest
       - name: third step
-        run: INPUT_PASSWORD="password" pytest ./project/test/test_server.py
+        run: INPUT_PASSWORD="admin" pytest ./project/test/test_server.py
       - name: fourth step
         run: |
           echo Deploying the project...
