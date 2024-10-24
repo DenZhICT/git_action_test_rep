@@ -9,7 +9,7 @@ on:
       'master'
 
 env:
-  python_version: 3.12
+  python_version: '3.12'
 
 jobs:
   build:
@@ -19,10 +19,10 @@ jobs:
     steps:
       - name: Checout repository
         uses: actions/checkout@v4
-      - name: Setup Python ${{python_version}}
+      - name: Setup Python ${{env.python_version}}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{python_version}}
+          python-version: ${{env.python_version}}
       - name: Setup needed environment
         run: pip install -r $requirements_path
   test:
