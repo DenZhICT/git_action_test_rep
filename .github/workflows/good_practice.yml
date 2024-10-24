@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      requirements_path: ./labs/lab4/requirements.txt
+      requirements_path: ./requirements.txt
     steps:
       - name: Checout repository
         uses: actions/checkout@v4
