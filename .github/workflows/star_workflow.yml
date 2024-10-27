@@ -1,0 +1,66 @@
+name: Example of workflow with Vault
+
+on:
+  push:
+    branches: 
+      'master'
+  pull_request:
+    branches:
+      'master'
+
+env:
+  python_version: '3.12'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    env:
+      server_path: ./project/src/server.py
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python ${{env.python_version}}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{env.python_version}}
+      - name: Build server
+        run: python $server_path &
+  
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+        test_path: ./project/test/test_server.py
+        requirements_path: ./requirements.txt
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python ${{env.python_version}}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{env.python_version}}
+      - name: Setup needed environment
+        run: pip install -r $requirements_path
+      - name: Get JWT Token
+        run: |
+          vault auth jwt -role=git_action_role -audience=git_action > vault-token.txt
+          echo "::set-output name=VAULT_TOKEN::$(cat vault-token.txt)"
+      - name: Get Secret
+        uses: hashicorp/vault-action@v2
+        with:
+          path: secret/git_secret
+          field: password
+          vault_addr: http://127.0.0.1:8200
+          vault_token: ${{ secrets.VAULT_TOKEN }}
+      - name: Testing server
+        run: INPUT_PASSWORD=${{secrets.password}} pytest $test_path
+          
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Project deployment
+        run: |
+          echo Deploying the project...
+          echo Project was deployed!
