@@ -11,6 +11,9 @@ on:
 env:
   python_version: '3.12'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,6 +32,8 @@ jobs:
   test:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     env:
         test_path: ./project/test/test_server.py
         requirements_path: ./requirements.txt
@@ -41,29 +46,17 @@ jobs:
           python-version: ${{env.python_version}}
       - name: Setup needed environment
         run: pip install -r $requirements_path
-      - name: Add HashiCorp GPG key
-        run: |
-          wget -nv -O- https://apt.hashicorp.com/gpg | sudo apt-key add -
-      - name: Add HashiCorp repo
-        run: |
-          echo "deb [arch=amd64] https://apt.hashicorp.com stable main" | sudo tee -a /etc/apt/sources.list.d/hashicorp.list
-      - name: Update package list
-        run: sudo apt-get update
-      - name: Install Vault
-        run: sudo apt-get install -y vault
-      - name: Get JWT Token
-        run: |
-          vault auth jwt -role=git_action_role -audience=git_action > vault-token.txt
-          echo "::set-output name=VAULT_TOKEN::$(cat vault-token.txt)"
       - name: Get Secret
         uses: hashicorp/vault-action@v2
         with:
-          path: secret/git_secret
-          field: password
-          vault_addr: http://127.0.0.1:8200
-          vault_token: ${{ secrets.VAULT_TOKEN }}
+          method: jwt
+          url: http://127.0.0.1:8200
+          role: git_role
+          secrets: secret/data/git_secret password | PASSWORD
       - name: Testing server
-        run: INPUT_PASSWORD=${{secrets.password}} pytest $test_path
+        run: |
+          echo ${{env.PASSWORD}}
+          INPUT_PASSWORD=${{env.PASSWORD}} pytest $test_path
           
   deploy:
     needs: test
