@@ -62,7 +62,7 @@ jobs:
           export APP_NAME=$app_name
           hcp profile set vault-secrets/app $APP_NAME
           hcp auth login
-          hcp vs s read "password" >> $GITHUB_OUTPUT
+          hcp vault-secrets run env | grep PASSWORD >> $GITHUB_OUTPUT
       - name: Testing Server
         run: INPUT_PASSWORD=${{steps.get_secret.ootputs.password}} pytest $test_path
           
