@@ -48,8 +48,8 @@ jobs:
           export APP_NAME=$app_name
           hcp profile set vault-secrets/app $APP_NAME
           hcp auth login
-          SECRET=$(hcp vault-secrets run env | grep VAULT_SECRET | cut -d '=' -f 2)
-          echo "::add-mask::$SECRET"
-          echo SECRET=$SECRET >> $GITHUB_ENV
+          ${!secret_name}=$(hcp vault-secrets run env | grep ${{env.secret_name}} | cut -d '=' -f 2)
+          echo "::add-mask::${!secret_name}"
+          echo ${!secret_name}=${!secret_name} >> $GITHUB_ENV
       - name: Testing Server
-        run: INPUT_PASSWORD=${{env.SECRET}} pytest $test_path
+        run: INPUT_PASSWORD=${{env.secret_name}} pytest $test_path
