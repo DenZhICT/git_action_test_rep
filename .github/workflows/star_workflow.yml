@@ -16,11 +16,22 @@ permissions:
 
 jobs:
 
+  build:
+    runs-on: ubuntu-latest
+    env:
+      server_path: ./project/src/server.py
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python ${{env.python_version}}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{env.python_version}}
+      - name: Build server
+        run: python $server_path &
   
   test:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
     env:
         test_path: ./project/test/test_server.py
         requirements_path: ./requirements.txt
@@ -49,8 +60,16 @@ jobs:
           export APP_NAME=$app_name
           hcp profile set vault-secrets/app $APP_NAME
           hcp auth login
-          ${!secret_name}=$(hcp vault-secrets run env | grep $secret_name | cut -d '=' -f 2)
-          echo "::add-mask::${!secret_name}"
-          echo ${!secret_name}=${!secret_name} >> $GITHUB_ENV
+          SECRET=$(hcp vault-secrets run env | grep $secret_name | cut -d '=' -f 2)
+          echo "::add-mask::$SECRET"
+          echo SECRET=$SECRET >> $GITHUB_ENV
       - name: Testing Server
-        run: INPUT_PASSWORD=${{env.${!secret_name}}} pytest $test_path
+        run: INPUT_PASSWORD=${{env.SECRET}} pytest $test_path
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Project deployment
+        run: |
+          echo Deploying the project...
+          echo Project was deployed!
