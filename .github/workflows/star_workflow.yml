@@ -24,7 +24,8 @@ jobs:
     env:
         test_path: ./project/test/test_server.py
         requirements_path: ./requirements.txt
-        app_name: git-app 
+        app_name: git-app
+        secret_name: VAULT_SECRET
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -48,8 +49,8 @@ jobs:
           export APP_NAME=$app_name
           hcp profile set vault-secrets/app $APP_NAME
           hcp auth login
-          PASSWORD=$(hcp vault-secrets run env | grep VAULT_SECRET | cut -d '=' -f 2)
-          echo "::add-mask::$PASSWORD"
-          echo PASSWORD=$PASSWORD >> $GITHUB_ENV
+          ${!secret_name}=$(hcp vault-secrets run env | grep $secret_name | cut -d '=' -f 2)
+          echo "::add-mask::${!secret_name}"
+          echo ${!secret_name}=${!secret_name} >> $GITHUB_ENV
       - name: Testing Server
-        run: INPUT_PASSWORD=${{env.PASSWORD}} pytest $test_path
+        run: INPUT_PASSWORD=${{env.${!secret_name}}} pytest $test_path
