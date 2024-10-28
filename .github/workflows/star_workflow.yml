@@ -60,8 +60,6 @@ jobs:
           export HCP_CLIENT_SECRET=${{secrets.HCP_CLIENT_SECRET}}
           export APP_NAME=$app_name
           hcp profile set vault-secrets/app $APP_NAME
-      - name: Testing server
-        run:  |
           hcp auth login
           hcp vs run INPUT_PASSWORD=PASSWORD pytest $test_path
           
