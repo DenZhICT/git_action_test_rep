@@ -41,15 +41,14 @@ jobs:
           echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
           sudo apt update && sudo apt install hcp -y
       - name: Get Secret
-        id: get_secret
         run: |
           export HCP_CLIENT_ID=${{secrets.HCP_CLIENT_ID}}
           export HCP_CLIENT_SECRET=${{secrets.HCP_CLIENT_SECRET}}
           export APP_NAME=$app_name
           hcp profile set vault-secrets/app $APP_NAME
           hcp auth login
-          hcp vault-secrets run env | grep VAULT_SECRET >> $GITHUB_OUTPUT
+          hcp vault-secrets run env | grep VAULT_SECRET >> $GITHUB_ENV
+          echo "::add-mask::$env.VAULT_SECRET"
+          echo VAULT_SECRET=$VAULT_SECRET >> $GITHUB_ENV
       - name: Testing Server
-        run: |
-          echo "::add-mask::${{steps.get_secret.outputs.VAULT_SECRET}}"
-          INPUT_PASSWORD=${{steps.get_secret.outputs.VAULT_SECRET}} pytest $test_path
+        run: INPUT_PASSWORD=${{env.VAULT_SECRET}} pytest $test_path
