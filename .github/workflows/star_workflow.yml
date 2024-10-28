@@ -47,7 +47,7 @@ jobs:
       - name: Setup needed environment
         run: pip install -r $requirements_path
       - name: Testing server
-        run: INPUT_PASSWORD=${{secrets.PASSWORD}} pytest $test_path
+        run: INPUT_PASSWORD=${{secrets.VAULT_SECRET}} pytest $test_path
           
   deploy:
     needs: test
