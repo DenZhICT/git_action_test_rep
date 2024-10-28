@@ -15,8 +15,22 @@ permissions:
   contents: read
 
 jobs:
-
+  build:
+    runs-on: ubuntu-latest
+    env:
+      server_path: ./project/src/server.py
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python ${{env.python_version}}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{env.python_version}}
+      - name: Build server
+        run: python $server_path &
+  
   test:
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -52,3 +66,12 @@ jobs:
           echo SECRET=$SECRET >> $GITHUB_ENV
       - name: Testing Server
         run: INPUT_PASSWORD=${{env.SECRET}} pytest $test_path
+  
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Project deployment
+        run: |
+          echo Deploying the project...
+          echo Project was deployed!
