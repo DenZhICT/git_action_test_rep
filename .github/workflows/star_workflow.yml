@@ -54,14 +54,17 @@ jobs:
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
           echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
           sudo apt update && sudo apt install hcp -y
-      - name: Configure HCP Vault Secret
+      - name: Get Secret
+        id: get_secret
         run: |
           export HCP_CLIENT_ID=${{secrets.HCP_CLIENT_ID}}
           export HCP_CLIENT_SECRET=${{secrets.HCP_CLIENT_SECRET}}
           export APP_NAME=$app_name
           hcp profile set vault-secrets/app $APP_NAME
           hcp auth login
-          hcp vs run INPUT_PASSWORD=PASSWORD pytest $test_path
+          hcp vs s read "password" >> $GITHUB_OUTPUT
+      - name: Testing Server
+        run: INPUT_PASSWORD=${{steps.get_secret.ootputs.password}} pytest $test_path
           
   deploy:
     needs: test
