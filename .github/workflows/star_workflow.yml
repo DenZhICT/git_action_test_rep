@@ -37,6 +37,7 @@ jobs:
     env:
         test_path: ./project/test/test_server.py
         requirements_path: ./requirements.txt
+        app_name: git-app 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -46,8 +47,22 @@ jobs:
           python-version: ${{env.python_version}}
       - name: Setup needed environment
         run: pip install -r $requirements_path
+      - name: Setup HCP
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install gpg coreutils
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt update && sudo apt install hcp -y
+      - name: Configure HCP Vault Secret
+        run: |
+          export HCP_CLIENT_ID=${{secrets.HCP_CLIENT_ID}}
+          export HCP_CLIENT_SECRET=${{secrets.HCP_CLIENT_SECRET}}
+          export APP_NAME=$app_name
+          hcp profile set vault-secrets/app $APP_NAME
+          hcp auth login
       - name: Testing server
-        run: INPUT_PASSWORD=${{secrets.VAULT_SECRET}} pytest $test_path
+        run:  hcp vs run INPUT_PASSWORD=PASSWORD pytest $test_path
           
   deploy:
     needs: test
