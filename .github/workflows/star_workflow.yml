@@ -15,7 +15,6 @@ permissions:
   contents: read
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     env:
@@ -29,7 +28,6 @@ jobs:
           python-version: ${{env.python_version}}
       - name: Build server
         run: python $server_path &
-  
   test:
     runs-on: ubuntu-latest
     env:
@@ -60,7 +58,7 @@ jobs:
           export APP_NAME=$app_name
           hcp profile set vault-secrets/app $APP_NAME
           hcp auth login
-          SECRET=$(hcp vault-secrets run env | grep $secret_name | cut -d '=' -f 2)
+          SECRET=$(hcp vault-secrets run env | grep VAULT_SECRET | cut -d '=' -f 2)
           echo "::add-mask::$SECRET"
           echo SECRET=$SECRET >> $GITHUB_ENV
       - name: Testing Server
