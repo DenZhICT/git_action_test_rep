@@ -46,17 +46,8 @@ jobs:
           python-version: ${{env.python_version}}
       - name: Setup needed environment
         run: pip install -r $requirements_path
-      - name: Get Secret
-        uses: hashicorp/vault-action@v2
-        with:
-          method: jwt
-          url: http://192.168.8.102:8200
-          role: git_role
-          secrets: secret/data/git_secret password | PASSWORD
       - name: Testing server
-        run: |
-          echo ${{env.PASSWORD}}
-          INPUT_PASSWORD=${{env.PASSWORD}} pytest $test_path
+        run: INPUT_PASSWORD=${{secrets.PASSWORD}} pytest $test_path
           
   deploy:
     needs: test
