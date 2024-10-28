@@ -16,7 +16,6 @@ permissions:
 
 jobs:
 
-  
   test:
     runs-on: ubuntu-latest
     permissions:
@@ -24,8 +23,7 @@ jobs:
     env:
         test_path: ./project/test/test_server.py
         requirements_path: ./requirements.txt
-        app_name: git-app
-        secret_name: VAULT_SECRET
+        app_name: git-app 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
