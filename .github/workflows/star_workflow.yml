@@ -15,6 +15,7 @@ permissions:
   contents: read
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
     env:
@@ -28,13 +29,13 @@ jobs:
           python-version: ${{env.python_version}}
       - name: Build server
         run: python $server_path &
+  
   test:
+    needs: build
     runs-on: ubuntu-latest
     env:
         test_path: ./project/test/test_server.py
         requirements_path: ./requirements.txt
-        app_name: git-app
-        secret_name: VAULT_SECRET
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -58,11 +59,12 @@ jobs:
           export APP_NAME=$app_name
           hcp profile set vault-secrets/app $APP_NAME
           hcp auth login
-          SECRET=$(hcp vault-secrets run env | grep VAULT_SECRET | cut -d '=' -f 2)
-          echo "::add-mask::$SECRET"
-          echo SECRET=$SECRET >> $GITHUB_ENV
+          PASSWORD=$(hcp vault-secrets run env | grep VAULT_SECRET | cut -d '=' -f 2)
+          echo "::add-mask::$PASSWORD"
+          echo PASSWORD=$PASSWORD >> $GITHUB_ENV
       - name: Testing Server
-        run: INPUT_PASSWORD=${{env.SECRET}} pytest $test_path
+        run: INPUT_PASSWORD=${{env.PASSWORD}} pytest $test_path
+          
   deploy:
     needs: test
     runs-on: ubuntu-latest
