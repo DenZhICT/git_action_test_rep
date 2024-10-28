@@ -49,6 +49,6 @@ jobs:
           hcp auth login
           VAULT_SECRET=$(hcp vault-secrets run env | grep VAULT_SECRET | cut -d '=' -f 2)
           echo "::add-mask::$VAULT_SECRET"
-          echo VAULT_SECRET=$VAULT_SECRET >> $GITHUB_ENV
+          echo VAULT_SECRET=$VAULT_SECRET >> $GITHUB_SECRETS
       - name: Testing Server
-        run: INPUT_PASSWORD=${{env.VAULT_SECRET}} pytest $test_path
+        run: INPUT_PASSWORD=${{secrets.VAULT_SECRET}} pytest $test_path
