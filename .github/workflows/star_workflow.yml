@@ -15,6 +15,7 @@ permissions:
   contents: read
 
 jobs:
+
   
   test:
     runs-on: ubuntu-latest
@@ -47,8 +48,8 @@ jobs:
           export APP_NAME=$app_name
           hcp profile set vault-secrets/app $APP_NAME
           hcp auth login
-          VAULT_SECRET=$(hcp vault-secrets run env | grep VAULT_SECRET | cut -d '=' -f 2)
-          echo "::add-mask::$VAULT_SECRET"
-          echo VAULT_SECRET=$VAULT_SECRET >> $GITHUB_SECRET
+          PASSWORD=$(hcp vault-secrets run env | grep VAULT_SECRET | cut -d '=' -f 2)
+          echo "::add-mask::$PASSWORD"
+          echo PASSWORD=$PASSWORD >> $GITHUB_ENV
       - name: Testing Server
-        run: INPUT_PASSWORD=${{secrets.VAULT_SECRET}} pytest $test_path
+        run: INPUT_PASSWORD=${{env.PASSWORD}} pytest $test_path
